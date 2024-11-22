@@ -45,7 +45,17 @@ android {
 }
 
 dependencies {
-    implementation(libs.zxing.android.embedded)
+    //http
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    //Biometric
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
+
+    //QR
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
+    //Core
     implementation(libs.core)
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.core.ktx)

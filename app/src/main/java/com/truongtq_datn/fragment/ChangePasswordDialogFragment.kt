@@ -10,14 +10,12 @@ import com.truongtq_datn.Constants
 import com.truongtq_datn.databinding.DialogChangepasswordLayoutBinding
 import com.truongtq_datn.extensions.Extensions
 import com.truongtq_datn.extensions.Pref
-import com.truongtq_datn.firebase.FirebaseServiceManager
 import kotlinx.coroutines.launch
 
 class ChangePasswordDialogFragment : DialogFragment() {
 
     private var _binding: DialogChangepasswordLayoutBinding? = null
     private val binding get() = _binding!!
-    private val firebaseServiceManager = FirebaseServiceManager()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,6 +27,10 @@ class ChangePasswordDialogFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.btnCancel.setOnClickListener {
+            this.dismiss()
+        }
 
         binding.btnChangePassword.setOnClickListener {
             val currentPassword = Pref.getData(requireContext(), Constants.Password)
@@ -56,20 +58,7 @@ class ChangePasswordDialogFragment : DialogFragment() {
             }
 
             val accountId = Pref.getData(requireContext(), "idAccount")
-            lifecycleScope.launch {
-                val success = firebaseServiceManager.changePassword(accountId, newPassword)
-                if (success) {
-                    Pref.saveData(
-                        requireContext(),
-                        Constants.Password,
-                        Extensions.sha256(newPassword)
-                    )
-                    dismiss()
-                    Extensions.toastCall(requireContext(), "Change password success")
-                } else {
-                    Extensions.toastCall(requireContext(), "Change password failed")
-                }
-            }
+
         }
     }
 

@@ -3,6 +3,7 @@ package com.truongtq_datn.activity
 import android.content.*
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -14,15 +15,14 @@ import com.truongtq_datn.Constants
 import com.truongtq_datn.databinding.ActivityMainBinding
 import com.truongtq_datn.fragment.ChangePasswordDialogFragment
 import com.truongtq_datn.extensions.*
-import com.truongtq_datn.firebase.FirebaseServiceManager
+import com.truongtq_datn.fragment.BiometricPromptManager
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityMainBinding
-    private val firebaseServiceManager = FirebaseServiceManager()
     private var buttons: Array<Button> = arrayOf()
     private lateinit var viewFlipper: ViewFlipper
+    private lateinit var biometricPromptManager: BiometricPromptManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         setupUI()
         setupEventListeners()
+        showBiometric()
     }
 
     //Init
@@ -81,6 +82,51 @@ class MainActivity : AppCompatActivity() {
     private fun updateButtonSelection(selectedButton: Button) {
         buttons.forEach { it.isSelected = false }
         selectedButton.isSelected = true
+    }
+
+    private fun showBiometric() {
+        biometricPromptManager = BiometricPromptManager(this)
+
+        lifecycleScope.launch {
+            biometricPromptManager.promptResults.collect { result ->
+                when (result) {
+                    is BiometricPromptManager.BiometricResult.HardwareUnavailable -> {
+                        Log.d("Biometric_Test", "HardwareUnavailable")
+                        //Todo OAuth2
+                    }
+
+                    is BiometricPromptManager.BiometricResult.FeatureUnavailable -> {
+                        Log.d("Biometric_Test", "FeatureUnavailable")
+                        //Todo OAuth2
+                    }
+
+                    is BiometricPromptManager.BiometricResult.AuthenticationNotSet -> {
+                        Log.d("Biometric_Test", "AuthenticationNotSet")
+                        //Todo OAuth2
+                    }
+
+                    is BiometricPromptManager.BiometricResult.AuthenticationSucceed -> {
+                        Log.d("Biometric_Test", "AuthenticationSucceed")
+                        //Save biometric
+                    }
+
+                    is BiometricPromptManager.BiometricResult.AuthenticationFailed -> {
+                        Log.d("Biometric_Test", "AuthenticationFailed")
+                        //Todo authenticate again or OAuth2
+                    }
+
+                    is BiometricPromptManager.BiometricResult.AuthenticationError -> {
+                        Log.d("Biometric_Test", "AuthenticationError: ${result.error}")
+                        //Todo authenticate again or OAuth2
+                    }
+                }
+            }
+        }
+
+        biometricPromptManager.showBiometricPrompt(
+            "Authenticate Biometric",
+            "Please authenticate using app"
+        )
     }
 
     //QR functions
@@ -151,17 +197,17 @@ class MainActivity : AppCompatActivity() {
 
     //Ticket functions
     private fun loadDoorsIntoSpinner() {
-        lifecycleScope.launch {
-            val doorNames = firebaseServiceManager.getDoorNames()
-            if (doorNames != null) {
-                val adapter =
-                    ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, doorNames)
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                binding.ticketDoorSpinner.adapter = adapter
-            } else {
-                Extensions.toastCall(this@MainActivity, "Failed to load doors")
-            }
-        }
+//        lifecycleScope.launch {
+//            val doorNames = firebaseServiceManager.getDoorNames()
+//            if (doorNames != null) {
+//                val adapter =
+//                    ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, doorNames)
+//                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//                binding.ticketDoorSpinner.adapter = adapter
+//            } else {
+//                Extensions.toastCall(this@MainActivity, "Failed to load doors")
+//            }
+//        }
     }
 
     private fun submitTicketRequest() {
@@ -176,26 +222,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val accountId = Pref.getData(this@MainActivity, "idAccount")
-            val doorId = firebaseServiceManager.getDoorId(selectedDoor)
-            if (doorId != null) {
-                val success = firebaseServiceManager.registerTicket(
-                    this@MainActivity,
-                    accountId,
-                    doorId,
-                    startTime,
-                    endTime,
-                    reason
-                )
-                if (success) {
-                    Extensions.toastCall(this@MainActivity, "Ticket request submitted")
-                    clearTicketForm()
-                } else {
-                    Extensions.toastCall(this@MainActivity, "Failed to submit request")
-                }
-            } else {
-                Extensions.toastCall(this@MainActivity, "Invalid door selection")
-            }
+//            val accountId = Pref.getData(this@MainActivity, "idAccount")
+//            val doorId = firebaseServiceManager.getDoorId(selectedDoor)
+//            if (doorId != null) {
+//                val success = firebaseServiceManager.registerTicket(
+//                    this@MainActivity,
+//                    accountId,
+//                    doorId,
+//                    startTime,
+//                    endTime,
+//                    reason
+//                )
+//                if (success) {
+//                    Extensions.toastCall(this@MainActivity, "Ticket request submitted")
+//                    clearTicketForm()
+//                } else {
+//                    Extensions.toastCall(this@MainActivity, "Failed to submit request")
+//                }
+//            } else {
+//                Extensions.toastCall(this@MainActivity, "Invalid door selection")
+//            }
         }
     }
 

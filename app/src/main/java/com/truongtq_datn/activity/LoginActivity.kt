@@ -1,17 +1,18 @@
 package com.truongtq_datn.activity
 
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
-import com.truongtq_datn.Constants
+import androidx.appcompat.app.AppCompatActivity
+import com.truongtq_datn.ApiEndpoint
 import com.truongtq_datn.extensions.Extensions
 import com.truongtq_datn.databinding.ActivityLoginBinding
-import com.truongtq_datn.extensions.Pref
-import com.truongtq_datn.firebase.FirebaseServiceAccount
+import com.truongtq_datn.okhttpcrud.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class LoginActivity : ComponentActivity() {
+class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +22,7 @@ class LoginActivity : ComponentActivity() {
         setContentView(binding.root)
 
         binding.loginBtnRegister.setOnClickListener {
-            changeIntentToRegister()
+            Extensions.changeIntent(this, RegisterActivity::class.java)
         }
 
         binding.loginBtnLogin.setOnClickListener {
@@ -32,6 +33,7 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun loginClicked(username: String, password: String) {
         if (binding.loginInputUsername.text.toString()
                 .isEmpty() || binding.loginInputPassword.text.toString().isEmpty()
@@ -39,60 +41,22 @@ class LoginActivity : ComponentActivity() {
             Extensions.toastCall(this, "Please enter username and password")
             return
         }
-        val firebaseServiceAccount = FirebaseServiceAccount()
-        lifecycleScope.launch {
-            val idAccount = firebaseServiceAccount.loginAccount(username, password)
-            Log.d("TestLogin", "idAccount: $idAccount")
-            if (idAccount != null) {
-                Log.d("TestLogin", "Login successful")
-                Extensions.toastCall(this@LoginActivity, "Login successful")
-                val data = firebaseServiceAccount.getDataAccount(idAccount)
-                Pref.saveData(this@LoginActivity, "idAccount", idAccount)
-                if (data != null) {
-                    Pref.saveData(
-                        this@LoginActivity,
-                        Constants.FirstName,
-                        data["firstName"] as String
-                    )
-                    Pref.saveData(
-                        this@LoginActivity,
-                        Constants.LastName,
-                        data["lastName"] as String
-                    )
-                    Pref.saveData(this@LoginActivity, Constants.Email, data["email"] as String)
-                    Pref.saveData(
-                        this@LoginActivity,
-                        Constants.PhoneNumber,
-                        data["phoneNumber"] as String
-                    )
-                    Pref.saveData(this@LoginActivity, Constants.RefId, data["refId"] as String)
-                    Pref.saveData(
-                        this@LoginActivity,
-                        Constants.Password,
-                        data["password"] as String
-                    )
 
-                    val arrRole = data["role"] as? List<*>
-                    arrRole?.forEachIndexed { index, item ->
-                        val role = item as? String
-                        role?.let {
-                            Pref.saveData(this@LoginActivity, "role_$index", it)
-                        }
-                    }
+        GlobalScope.launch(Dispatchers.IO) {
+            val loginApi = ApiEndpoint.Endpoint_Account_Login
+            val requestBody =
+                """{"username": "$username", "password": "$password", "typeApp": "client"}"""
+            val postRequest = PostRequest(loginApi, requestBody)
+            val response = postRequest.execute()
+
+            withContext(Dispatchers.Main) {
+                if (response != null && response.isSuccessful) {
+                    Extensions.toastCall(applicationContext, "Login successful.")
+                    Extensions.changeIntent(this@LoginActivity, MainActivity::class.java);
+                } else {
+                    Extensions.toastCall(applicationContext, "Login failed.")
                 }
-                changeIntentToMain()
-            } else {
-                Log.e("TestLogin", "Login failed")
-                Extensions.toastCall(this@LoginActivity, "Login failed")
             }
         }
-    }
-
-    private fun changeIntentToMain() {
-        Extensions.changeIntent(this, MainActivity::class.java)
-    }
-
-    private fun changeIntentToRegister() {
-        Extensions.changeIntent(this, RegisterActivity::class.java)
     }
 }
