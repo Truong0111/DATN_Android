@@ -34,6 +34,6 @@
     <string name="send_ticket">Send Ticket</string>
     <string name="cancel">Cancel</string>
     <string name="apply">Apply</string>
-    <string name="update_qr">Get QR</string>
+    <string name="scan_qr">Scan QR</string>
     <string name="date_choose">DateChoose</string>
 </resources>

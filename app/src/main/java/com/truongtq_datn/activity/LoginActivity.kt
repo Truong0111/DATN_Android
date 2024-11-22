@@ -4,10 +4,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import com.truongtq_datn.Constants
 import com.truongtq_datn.extensions.Extensions
 import com.truongtq_datn.databinding.ActivityLoginBinding
@@ -18,15 +14,11 @@ import kotlinx.coroutines.launch
 class LoginActivity : ComponentActivity() {
     private lateinit var binding: ActivityLoginBinding
 
-    private lateinit var auth: FirebaseAuth
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        auth = Firebase.auth
 
         binding.loginBtnRegister.setOnClickListener {
             changeIntentToRegister()
@@ -37,11 +29,6 @@ class LoginActivity : ComponentActivity() {
                 binding.loginInputUsername.text.toString(),
                 binding.loginInputPassword.text.toString()
             )
-
-//            loginUser(
-//                binding.loginInputUsername.text.toString(),
-//                binding.loginInputPassword.text.toString()
-//            )
         }
     }
 
@@ -107,25 +94,5 @@ class LoginActivity : ComponentActivity() {
 
     private fun changeIntentToRegister() {
         Extensions.changeIntent(this, RegisterActivity::class.java)
-    }
-
-    private fun loginUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(this) { task ->
-                if (task.isSuccessful) {
-                    val user = auth.currentUser
-                    updateUI(user)
-                } else {
-                    Extensions.toastCall(this, "Login failed")
-                    updateUI(null)
-                }
-            }
-    }
-
-    private fun updateUI(user: FirebaseUser?) {
-        if (user != null) {
-            changeIntentToMain()
-            finish()
-        }
     }
 }
