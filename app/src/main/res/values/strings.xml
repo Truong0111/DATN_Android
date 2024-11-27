@@ -36,4 +36,26 @@
     <string name="apply">Apply</string>
     <string name="scan_qr">Scan QR</string>
     <string name="date_choose">DateChoose</string>
+    <string name="fingerprint">Fingerprint</string>
+    <string name="setting">Setting</string>
+    <string name="biometric_setting">Biometric</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="this_operation_cannot_be_undone">This operation cannot be undone.</string>"
+    <string name="door">Door</string>
+    <string name="plus">+</string>
+    <string name="view">View</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="reject">Reject</string>
+    <string name="id_door">ID Door</string>
+    <string name="id_account">ID Account</string>
+    <string name="id_account_create">ID Account Create</string>
+    <string name="position">Position</string>
+    <string name="created_at">Created At</string>
+    <string name="status">Status</string>
+    <string name="last_updated">Last updated</string>
+    <string name="accept">Accept</string>
+    <string name="id_ticket">ID Ticket</string>
+    <string name="create_door">Create Door</string>"
+
 </resources>

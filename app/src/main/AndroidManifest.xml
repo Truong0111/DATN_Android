@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
+        android:name=".activity.MyApplication"
         android:allowBackup="true"
 
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -26,8 +27,12 @@
         android:theme="@style/Theme.AppTheme"
         tools:targetApi="34">
 
-        <activity android:name=".activity.RegisterActivity" />
-        <activity android:name=".activity.MainActivity" />
+        <activity
+            android:name=".activity.RegisterActivity"
+            android:theme="@style/Theme.AppTheme" />
+        <activity
+            android:name=".activity.MainActivity"
+            android:theme="@style/Theme.AppTheme" />
         <activity
             android:name=".activity.LoginActivity"
             android:exported="true"

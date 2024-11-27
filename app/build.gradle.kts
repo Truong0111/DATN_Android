@@ -6,12 +6,12 @@ plugins {
 }
 
 android {
-    namespace = "com.truongtq_datn"
+    namespace = "com.truongtq_datn_user"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.truongtq_datn"
-        minSdk = 23
+        applicationId = "com.truongtq_datn_user"
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -39,7 +39,7 @@ android {
     buildFeatures {
         compose = true
     }
-    viewBinding{
+    viewBinding {
         enable = true
     }
 }
@@ -48,12 +48,17 @@ dependencies {
     //http
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.google.code.gson:gson:2.10.1")
 
     //Biometric
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
 
     //QR
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
+    //Hash
+    implementation("androidx.security:security-crypto:1.1.0-alpha03")
+    implementation("com.auth0.android:jwtdecode:2.0.2")
 
     //Core
     implementation(libs.core)

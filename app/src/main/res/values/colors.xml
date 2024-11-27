@@ -3,7 +3,9 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="red">#FF0000</color>
+    <color name="shadowRed">#DD0000</color>
     <color name="green">#00FF00</color>
+    <color name="dark_green">#1F951F</color>
     <color name="blue">#0000FF</color>
     <color name="yellow">#FFFF00</color>
     <color name="cyan">#00FFFF</color>

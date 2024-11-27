@@ -3,5 +3,8 @@
 
     <style name="Theme.TruongTq_Datn" parent="android:Theme.Material.Light.NoActionBar" />
 
-    <style name="Theme.AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar" />
+    <style name="Theme.AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>
