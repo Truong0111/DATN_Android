@@ -122,8 +122,15 @@ class LoginActivity : AppCompatActivity() {
             val response = postRequest.execute(false)
 
             withContext(Dispatchers.Main) {
-                if (response != null && response.isSuccessful) {
-                    val token = Extensions.extractJson(response.body!!.string()).get("token")
+                if (response == null) {
+                    Extensions.toastCall(applicationContext, "Login failed")
+                    return@withContext
+                }
+
+                val responseBody = response.body!!.string()
+
+                if (response.isSuccessful) {
+                    val token = Extensions.extractJson(responseBody).get("token")
                     Pref.setString(
                         this@LoginActivity,
                         Constants.JWT,
@@ -133,6 +140,11 @@ class LoginActivity : AppCompatActivity() {
                     val claimToken = Extensions.decodeJWT(token.toString())
                     val idAccount: String = claimToken.first.toString()
                     Pref.setString(this@LoginActivity, Constants.ID_ACCOUNT, idAccount)
+                    Pref.setString(
+                        this@LoginActivity,
+                        Constants.PASSWORD,
+                        Extensions.sha256(passwordInput)
+                    )
 
                     val tokenBiometric = Extensions.sha256(idAccount)
                     Extensions.saveAuthToken(this@LoginActivity, tokenBiometric)
@@ -142,7 +154,10 @@ class LoginActivity : AppCompatActivity() {
                     Extensions.toastCall(applicationContext, "Login successful.")
                     Extensions.changeIntent(this@LoginActivity, MainActivity::class.java);
                 } else {
-                    Extensions.toastCall(applicationContext, "Login failed.")
+                    Extensions.toastCall(
+                        applicationContext,
+                        Extensions.extractJson(responseBody).get("message").toString()
+                    )
                 }
             }
         }

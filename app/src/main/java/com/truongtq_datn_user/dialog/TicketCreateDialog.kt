@@ -83,9 +83,6 @@ class TicketCreateDialog(
             withContext(Dispatchers.Main) {
                 if (response != null && response.isSuccessful) {
                     val responseBody = response.body?.string()
-
-                    println("Test ticket: $responseBody")
-
                     if (!responseBody.isNullOrEmpty()) {
                         val listType = object : TypeToken<List<DoorResponse>>() {}.type
                         val doorList: List<DoorResponse> = gson.fromJson(responseBody, listType)

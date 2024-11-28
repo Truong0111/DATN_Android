@@ -15,7 +15,9 @@ import com.truongtq_datn_user.activity.MainActivity
 import com.truongtq_datn_user.adapter.TicketAdapter
 import com.truongtq_datn_user.databinding.FragmentTicketBinding
 import com.truongtq_datn_user.dialog.TicketCreateDialog
+import com.truongtq_datn_user.extensions.Constants
 import com.truongtq_datn_user.extensions.Extensions
+import com.truongtq_datn_user.extensions.Pref
 import com.truongtq_datn_user.model.TicketItem
 import com.truongtq_datn_user.model.TicketResponse
 import com.truongtq_datn_user.okhttpcrud.GetRequest
@@ -55,19 +57,23 @@ class TicketFragment(private val mainActivity: MainActivity) : Fragment() {
     private var ticketResponse: List<TicketResponse> = emptyList()
 
     fun loadTicketToAdapter() {
-        val getTicketsApi = ApiEndpoint.Endpoint_Ticket_GetAll
+        val idAccount = Pref.getString(mainActivity, Constants.ID_ACCOUNT)
+        val getTicketsApi = "${ApiEndpoint.Endpoint_Ticket_IdAccount}/$idAccount"
 
         lifecycleScope.launch(Dispatchers.IO) {
             val getRequest = GetRequest(getTicketsApi)
             val response = getRequest.execute(true)
 
             withContext(Dispatchers.Main) {
-                if (response != null && response.isSuccessful) {
-                    val responseBody = response.body?.string()
+                if (response == null) {
+                    Extensions.toastCall(mainActivity, "Failed to load tickets")
+                    return@withContext
+                }
 
-                    println("Test ticket: $responseBody")
+                val responseBody = response.body!!.string()
 
-                    if (!responseBody.isNullOrEmpty()) {
+                if (response.isSuccessful) {
+                    if (responseBody.isNotEmpty()) {
                         val listType = object : TypeToken<List<TicketResponse>>() {}.type
                         ticketResponse = gson.fromJson(responseBody, listType)
                         val ticketPositionList: List<TicketItem> =
@@ -95,10 +101,13 @@ class TicketFragment(private val mainActivity: MainActivity) : Fragment() {
                             )
                         binding.ticketMain.adapter = adapter
                     } else {
-                        Extensions.toastCall(mainActivity, "Failed to load tickets")
+                        Extensions.toastCall(mainActivity, "You don't have any tickets")
                     }
                 } else {
-                    Extensions.toastCall(mainActivity, "Failed to load tickets")
+                    Extensions.toastCall(
+                        mainActivity,
+                        Extensions.extractJson(responseBody).get("message").toString()
+                    )
                 }
             }
         }
