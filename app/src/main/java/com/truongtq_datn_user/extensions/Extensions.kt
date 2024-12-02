@@ -23,10 +23,19 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import kotlin.random.Random
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.truongtq_datn_user.okhttpcrud.ApiEndpoint
 
 
 class Extensions {
     companion object {
+        private lateinit var database: FirebaseDatabase
+        private lateinit var myRef: DatabaseReference
+
         fun sha256(param: String): String {
             val bytes = MessageDigest.getInstance("SHA-256").digest(param.toByteArray())
             return Base64.encodeToString(bytes, Base64.NO_WRAP)
@@ -160,6 +169,27 @@ class Extensions {
 
         fun removePreAndSuffix(string: String): String {
             return string.removePrefix("\"").removeSuffix("\"")
+        }
+
+        fun initIpAPI() {
+            database = FirebaseDatabase.getInstance()
+            myRef = database.getReference(Constants.IP)
+
+            myRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    val value = dataSnapshot.getValue(String::class.java)
+
+                    if (value != null) {
+                        ApiEndpoint.Url_Server = "https://$value:3001"
+                    } else {
+                        Log.d("Firebase IP", "No data available")
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    Log.w("Firebase IP", "Failed to read value.", databaseError.toException())
+                }
+            })
         }
     }
 }
