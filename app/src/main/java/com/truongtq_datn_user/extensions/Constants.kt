@@ -17,4 +17,6 @@ data object Constants {
 
     var TYPE_APP = "app_user"
     var JWT = "jwt"
+
+    var IP = "ip"
 }

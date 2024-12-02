@@ -1,22 +1,22 @@
 package com.truongtq_datn_user.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.truongtq_datn_user.okhttpcrud.ApiEndpoint
+import com.truongtq_datn_user.databinding.ActivityLoginBinding
+import com.truongtq_datn_user.extensions.BiometricPromptManager
 import com.truongtq_datn_user.extensions.Constants
 import com.truongtq_datn_user.extensions.Extensions
-import com.truongtq_datn_user.databinding.ActivityLoginBinding
 import com.truongtq_datn_user.extensions.Pref
-import com.truongtq_datn_user.extensions.BiometricPromptManager
 import com.truongtq_datn_user.model.LoginForm
-import com.truongtq_datn_user.okhttpcrud.*
+import com.truongtq_datn_user.okhttpcrud.ApiEndpoint
+import com.truongtq_datn_user.okhttpcrud.PostRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
+
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -56,22 +56,18 @@ class LoginActivity : AppCompatActivity() {
             biometricPromptManager.promptResults.collect { result ->
                 when (result) {
                     is BiometricPromptManager.BiometricResult.HardwareUnavailable -> {
-                        Log.d("Biometric_Test", "HardwareUnavailable")
                         //Todo OAuth2
                     }
 
                     is BiometricPromptManager.BiometricResult.FeatureUnavailable -> {
-                        Log.d("Biometric_Test", "FeatureUnavailable")
                         //Todo OAuth2
                     }
 
                     is BiometricPromptManager.BiometricResult.AuthenticationNotSet -> {
-                        Log.d("Biometric_Test", "AuthenticationNotSet")
                         //Todo OAuth2
                     }
 
                     is BiometricPromptManager.BiometricResult.AuthenticationSucceed -> {
-                        Log.d("Biometric_Test", "AuthenticationSucceed")
                         //Save biometric
                         val token = Extensions.getAuthToken(this@LoginActivity)
                         if (token != null) {
@@ -83,12 +79,10 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                     is BiometricPromptManager.BiometricResult.AuthenticationFailed -> {
-                        Log.d("Biometric_Test", "AuthenticationFailed")
                         //Todo authenticate again or OAuth2
                     }
 
                     is BiometricPromptManager.BiometricResult.AuthenticationError -> {
-                        Log.d("Biometric_Test", "AuthenticationError: ${result.error}")
                         //Todo authenticate again or OAuth2
                     }
                 }

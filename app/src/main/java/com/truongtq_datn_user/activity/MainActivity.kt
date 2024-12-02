@@ -125,12 +125,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showFragment(fragment: Fragment) {
+        val currentFragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
+
+        currentFragment?.let {
+            supportFragmentManager.beginTransaction()
+                .detach(it)
+                .commit()
+        }
+
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentContainer.id, fragment)
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
+
+        supportFragmentManager.beginTransaction()
+            .attach(fragment)
+            .commit()
     }
+
 
     //QR functions
     private fun showQrFragment() {
