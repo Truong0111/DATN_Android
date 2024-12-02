@@ -30,8 +30,6 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupEventListeners()
-
-        Extensions.initIpAPI()
     }
 
     private fun setupEventListeners() {
