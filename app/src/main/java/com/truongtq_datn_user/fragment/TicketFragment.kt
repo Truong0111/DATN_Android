@@ -22,6 +22,7 @@ import com.truongtq_datn_user.model.TicketItem
 import com.truongtq_datn_user.model.TicketResponse
 import com.truongtq_datn_user.okhttpcrud.GetRequest
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -29,6 +30,7 @@ class TicketFragment(private val mainActivity: MainActivity) : Fragment() {
     private var _binding: FragmentTicketBinding? = null
     private val binding get() = _binding!!
     private val gson = Gson()
+    private var job: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +53,7 @@ class TicketFragment(private val mainActivity: MainActivity) : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        job?.cancel()
         _binding = null
     }
 
@@ -60,7 +63,7 @@ class TicketFragment(private val mainActivity: MainActivity) : Fragment() {
         val idAccount = Pref.getString(mainActivity, Constants.ID_ACCOUNT)
         val getTicketsApi = "${ApiEndpoint.Endpoint_Ticket_IdAccount}/$idAccount"
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        job = lifecycleScope.launch(Dispatchers.IO) {
             val getRequest = GetRequest(getTicketsApi)
             val response = getRequest.execute(true)
 

@@ -9,12 +9,14 @@ import android.util.Log
 import android.view.Gravity
 import android.widget.Toast
 import androidx.core.content.ContextCompat.startActivity
+import androidx.fragment.app.FragmentManager
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.auth0.android.jwt.JWT
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.truongtq_datn_user.fragment.LoadingFragment
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -23,18 +25,10 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
 import kotlin.random.Random
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.truongtq_datn_user.okhttpcrud.ApiEndpoint
 
 
 class Extensions {
     companion object {
-        private lateinit var database: FirebaseDatabase
-        private lateinit var myRef: DatabaseReference
 
         fun sha256(param: String): String {
             val bytes = MessageDigest.getInstance("SHA-256").digest(param.toByteArray())
@@ -169,6 +163,23 @@ class Extensions {
 
         fun removePreAndSuffix(string: String): String {
             return string.removePrefix("\"").removeSuffix("\"")
+        }
+
+        fun showLoadingFragment(fragmentManager: FragmentManager) {
+            val loadingFragment = LoadingFragment()
+            fragmentManager.beginTransaction()
+                .add(android.R.id.content, loadingFragment, Constants.FRAGMENT_TAG_LOADING)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        fun hideLoadingFragment(fragmentManager: FragmentManager) {
+            val loadingFragment = fragmentManager.findFragmentByTag(Constants.FRAGMENT_TAG_LOADING)
+            if (loadingFragment != null) {
+                fragmentManager.beginTransaction()
+                    .remove(loadingFragment)
+                    .commit()
+            }
         }
     }
 }

@@ -19,6 +19,7 @@ import com.truongtq_datn_user.model.DoorItem
 import com.truongtq_datn_user.model.DoorResponse
 import com.truongtq_datn_user.okhttpcrud.GetRequest
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -26,6 +27,7 @@ class DoorFragment(private val mainActivity: MainActivity) : Fragment() {
     private var _binding: FragmentDoorBinding? = null
     private val binding get() = _binding!!
     private val gson = Gson()
+    private var job: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,15 +48,16 @@ class DoorFragment(private val mainActivity: MainActivity) : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        job?.cancel()
         _binding = null
     }
 
     private var doorResponse: List<DoorResponse> = emptyList()
 
-    fun loadDoorToAdapter() {
+    private fun loadDoorToAdapter() {
         val getDoorsApi = ApiEndpoint.Endpoint_Door_GetAll
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        job = lifecycleScope.launch(Dispatchers.IO) {
             val getRequest = GetRequest(getDoorsApi)
             val response = getRequest.execute(true)
 

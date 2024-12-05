@@ -15,11 +15,13 @@ import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import com.truongtq_datn_user.databinding.FragmentQrBinding
 import com.truongtq_datn_user.extensions.Extensions
+import kotlinx.coroutines.Job
 
 class QrFragment(private val mainActivity: Activity) : Fragment() {
 
     private var _binding: FragmentQrBinding? = null
     private val binding get() = _binding!!
+    private var job: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,6 +39,7 @@ class QrFragment(private val mainActivity: Activity) : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        job?.cancel()
         _binding = null
     }
 

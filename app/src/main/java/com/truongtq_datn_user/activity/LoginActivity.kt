@@ -107,6 +107,8 @@ class LoginActivity : AppCompatActivity() {
             return
         }
 
+        Extensions.showLoadingFragment(supportFragmentManager)
+
         lifecycleScope.launch(Dispatchers.IO) {
             val loginApi = ApiEndpoint.Endpoint_Account_Login
             val loginForm = LoginForm(usernameInput, passwordInput, Constants.TYPE_APP)
@@ -116,6 +118,7 @@ class LoginActivity : AppCompatActivity() {
             val response = postRequest.execute(false)
 
             withContext(Dispatchers.Main) {
+                Extensions.hideLoadingFragment(supportFragmentManager)
                 if (response == null) {
                     Extensions.toastCall(applicationContext, "Login failed")
                     return@withContext

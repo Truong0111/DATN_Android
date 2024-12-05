@@ -14,12 +14,14 @@ import com.truongtq_datn_user.extensions.Extensions
 import com.truongtq_datn_user.extensions.Pref
 import com.truongtq_datn_user.okhttpcrud.GetRequest
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ProfileFragment(private val mainActivity: MainActivity) : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
+    private var job: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +40,7 @@ class ProfileFragment(private val mainActivity: MainActivity) : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        job?.cancel()
         _binding = null
     }
 
@@ -48,12 +51,9 @@ class ProfileFragment(private val mainActivity: MainActivity) : Fragment() {
         )
     }
 
-    private var isGetInfo: Boolean = false
-
     private fun initValueProfile() {
-        if (isGetInfo) return
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        job = lifecycleScope.launch(Dispatchers.IO) {
             val idAccount = Pref.getString(mainActivity, Constants.ID_ACCOUNT)
             val getAccountApi = "${ApiEndpoint.Endpoint_Account}/${idAccount}"
             val getRequest = GetRequest(getAccountApi)
@@ -75,8 +75,6 @@ class ProfileFragment(private val mainActivity: MainActivity) : Fragment() {
                         Extensions.removePreAndSuffix(info.get("phoneNumber").toString())
                     binding.profileRefId.text =
                         Extensions.removePreAndSuffix(info.get("refId").toString())
-
-                    isGetInfo = true
                 } else {
                     Extensions.toastCall(context, "Failed to load account")
                 }

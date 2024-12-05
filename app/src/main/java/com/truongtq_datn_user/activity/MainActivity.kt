@@ -33,10 +33,6 @@ class MainActivity : AppCompatActivity() {
 
         biometricPromptManager = BiometricPromptManager(this)
 
-        if (savedInstanceState == null) {
-            showFragment(QrFragment(this))
-        }
-
         //Check time token expired
         val timeTokenExpired = Pref.getLong(this, Constants.TOKEN_BIOMETRIC_TIME)
 
@@ -124,55 +120,54 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun showFragment(fragment: Fragment) {
-        val currentFragment = supportFragmentManager.findFragmentById(binding.fragmentContainer.id)
+    private val fragmentCache = mutableMapOf<String, Fragment>()
 
-        currentFragment?.let {
-            supportFragmentManager.beginTransaction()
-                .detach(it)
-                .commit()
+    private fun showFragment(fragmentTag: String, fragmentSupplier: () -> Fragment) {
+        val fragmentManager = supportFragmentManager
+        val currentFragment = fragmentManager.findFragmentById(binding.fragmentContainer.id)
+
+        if (currentFragment != null && currentFragment.tag == fragmentTag) return
+
+        val fragment = fragmentCache[fragmentTag] ?: fragmentSupplier().also {
+            fragmentCache[fragmentTag] = it
         }
 
-        supportFragmentManager.beginTransaction()
-            .replace(binding.fragmentContainer.id, fragment)
+        fragmentManager.beginTransaction()
+            .replace(binding.fragmentContainer.id, fragment, fragmentTag)
             .addToBackStack(null)
             .setReorderingAllowed(true)
-            .commit()
-
-        supportFragmentManager.beginTransaction()
-            .attach(fragment)
             .commit()
     }
 
 
     //QR functions
     private fun showQrFragment() {
-        showFragment(QrFragment(this))
+        showFragment(Constants.FRAGMENT_TAG_QR) { QrFragment(this) }
         updateButtonSelection(binding.mainBtnQrCode)
     }
 
     //Profile Functions
     private fun showProfileFragment() {
-        showFragment(ProfileFragment(this))
+        showFragment(Constants.FRAGMENT_TAG_PROFILE) { ProfileFragment(this) }
         updateButtonSelection(binding.mainBtnProfile)
     }
 
     //Door functions
     private fun showDoorFragment() {
-        showFragment(DoorFragment(this))
+        showFragment(Constants.FRAGMENT_TAG_DOOR) { DoorFragment(this) }
         updateButtonSelection(binding.mainBtnDoor)
     }
 
 
     //Ticket functions
     private fun showTicketFragment() {
-        showFragment(TicketFragment(this))
+        showFragment(Constants.FRAGMENT_TAG_TICKET) { TicketFragment(this) }
         updateButtonSelection(binding.mainBtnTickets)
     }
 
     //Setting Function
     private fun showSettingFragment() {
-        showFragment(SettingFragment(this))
+        showFragment(Constants.FRAGMENT_TAG_SETTING) { SettingFragment(this) }
         updateButtonSelection(binding.mainBtnSetting)
     }
 

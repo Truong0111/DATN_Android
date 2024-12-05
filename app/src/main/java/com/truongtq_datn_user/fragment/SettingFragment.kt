@@ -14,11 +14,13 @@ import com.truongtq_datn_user.databinding.FragmentSettingBinding
 import com.truongtq_datn_user.extensions.BiometricPromptManager
 import com.truongtq_datn_user.extensions.Extensions
 import com.truongtq_datn_user.extensions.Pref
+import kotlinx.coroutines.Job
 
 class SettingFragment(private val mainActivity: MainActivity) : Fragment() {
     private var _binding: FragmentSettingBinding? = null
     private val binding get() = _binding!!
     private lateinit var biometricPromptManager: BiometricPromptManager
+    private var job: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,6 +49,7 @@ class SettingFragment(private val mainActivity: MainActivity) : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        job?.cancel()
         _binding = null
     }
 

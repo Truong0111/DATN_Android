@@ -19,4 +19,11 @@ data object Constants {
     var JWT = "jwt"
 
     var IP = "ip"
+
+    var FRAGMENT_TAG_LOADING = "loading_fragment"
+    var FRAGMENT_TAG_QR = "qr_fragment"
+    var FRAGMENT_TAG_PROFILE = "profile_fragment"
+    var FRAGMENT_TAG_DOOR = "door_fragment"
+    var FRAGMENT_TAG_TICKET = "ticket_fragment"
+    var FRAGMENT_TAG_SETTING = "setting_fragment"
 }

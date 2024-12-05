@@ -45,52 +45,61 @@ class ChangePasswordDialogFragment(private val mainActivity: Activity) : DialogF
         }
 
         binding.btnChangePassword.setOnClickListener {
-            val currentPassword = Pref.getString(mainActivity, Constants.PASSWORD)
-            val oldPasswordInput = binding.oldPassword.text.toString()
-
-            if (currentPassword != Extensions.sha256(oldPasswordInput)) {
-                Extensions.toastCall(requireContext(), "Current password is not correct")
-                return@setOnClickListener
-            }
-
-            val newPassword = binding.newPassword.text.toString()
-            val confirmPassword = binding.confirmPassword.text.toString()
-
-            if (currentPassword == Extensions.sha256(newPassword)) {
-                Extensions.toastCall(
-                    requireContext(),
-                    "New password cannot be the same as the old password"
-                )
-                return@setOnClickListener
-            }
-
-            if (newPassword != confirmPassword) {
-                Extensions.toastCall(requireContext(), "Confirm password is not correct")
-                return@setOnClickListener
-            }
-
-            val accountId = Pref.getString(mainActivity, Constants.ID_ACCOUNT)
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                val api = "${ApiEndpoint.Endpoint_Account}/$accountId"
-                val requestBody = gson.toJson(mapOf("password" to Extensions.sha256(newPassword)))
-
-                val patchRequest = PatchRequest(api, requestBody)
-                val response = patchRequest.execute(true)
-
-                withContext(Dispatchers.Main) {
-                    if (response != null && response.isSuccessful) {
-                        Extensions.toastCall(mainActivity, "Change password success")
-                    } else {
-                        Extensions.toastCall(mainActivity, "Change password failed")
-                    }
-                }
-            }
+            changePassword()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun changePassword() {
+        val currentPassword = Pref.getString(mainActivity, Constants.PASSWORD)
+        val oldPasswordInput = binding.oldPassword.text.toString()
+
+        if (currentPassword != Extensions.sha256(oldPasswordInput)) {
+            Extensions.toastCall(requireContext(), "Current password is not correct")
+            return
+        }
+
+        val newPassword = binding.newPassword.text.toString()
+        val confirmPassword = binding.confirmPassword.text.toString()
+        val newHashPassword = Extensions.sha256(newPassword)
+
+        if (currentPassword == newHashPassword) {
+            Extensions.toastCall(
+                requireContext(),
+                "New password cannot be the same as the old password"
+            )
+            return
+        }
+
+        if (newPassword != confirmPassword) {
+            Extensions.toastCall(requireContext(), "Confirm password is not correct")
+            return
+        }
+
+        val accountId = Pref.getString(mainActivity, Constants.ID_ACCOUNT)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            Extensions.showLoadingFragment(childFragmentManager)
+            val api = "${ApiEndpoint.Endpoint_Account}/$accountId"
+            val requestBody = gson.toJson(mapOf("password" to newPassword))
+
+            val patchRequest = PatchRequest(api, requestBody)
+            val response = patchRequest.execute(true)
+
+            withContext(Dispatchers.Main) {
+                Extensions.hideLoadingFragment(childFragmentManager)
+                if (response != null && response.isSuccessful) {
+                    Pref.setString(mainActivity, Constants.PASSWORD, newHashPassword)
+                    Extensions.toastCall(mainActivity, "Change password success")
+                    dismiss()
+                } else {
+                    Extensions.toastCall(mainActivity, "Change password failed")
+                }
+            }
+        }
     }
 }
