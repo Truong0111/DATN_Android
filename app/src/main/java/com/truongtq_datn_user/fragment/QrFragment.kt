@@ -99,9 +99,20 @@ class QrFragment(private val mainActivity: Activity) : Fragment() {
     }
 
     private fun requestAccessDoor(token: String) {
+        val parts = token.split("::")
+        if(parts.count() != 2) {
+            Extensions.toastCall(mainActivity, "QR invalid!")
+            return
+        }
+        if (parts[0].isEmpty() || parts[1].isEmpty()) {
+            Extensions.toastCall(mainActivity, "QR invalid!")
+            return
+        }
+
+
         job = lifecycleScope.launch(Dispatchers.IO) {
-            val parts = token.split("::")
             val idAccount = Pref.getString(mainActivity, Constants.ID_ACCOUNT)
+
 
             val requestBody = gson.toJson(mapOf("token" to parts[1]))
 
